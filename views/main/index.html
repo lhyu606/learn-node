@@ -1,102 +1,37 @@
-<!DOCTYPE>
-<html>
-	<head>
-		<meta charset="utf-8" />
-		<title>博客首页</title>
+{% extends 'layout.html' %}
 
-	</head>
-	<body>
-		博客首页....
-		{% if userInfo._id %}
-		<div class="userInfo">
-			{% if userInfo.isAdmin %}
-			<p class="">
-				<span>你好，管理员</span>
-				<a href="/admin">进入管理</a>
+{% block content %}
+		{% for content in contents %}
+		<div class="list-box">
+			<h1>{{ content.title }}</h1>
+			<p class="colDefault">
+				 作者：<span class="colInfo">{{ content.user.username }}</span>
+				 时间<span class="colInfo">{{ content.addTime|date('Y年m月d日 H:i:s', -8*60) }}</span>
+				 评论：<span class="colInfo">{{ content.views }}</span>
+				 阅读数：<span class="colInfo">{{  }}</span>
 			</p>
-			{% else %}
-			<p class="">你好，<span class="username">{{userInfo.username}}</span></p>
-			{% endif %}
-			
-			<p><a href="#" class="logout">退出</a></p>
+			<dfn><p>{{ content.desc }}</p></dfn>
+			<div class="function">
+				<a href="/view/?contentid={{ content._id.toString() }}">阅读全文</a>
+			</div>
 		</div>
+		{% endfor %}
+	
+
+		{% if page <= 1 %}
+		<span>没有上一页了</span>
 		{% else %}
-		<div class="loginbox">
-			<p>登录</p>
-			<p>用户名：<input type="text" name="username" value="admin"></p>
-			<p>密码：<input type="password" name="password" value="admin"></p>
-			<p><button class="loginbtn">提交</button></p>
-			<p>还没注册？<a href="#" class="toreg">立即注册</a></p>
-		</div>
-		<div class="registerbox" style="display: none;">
-			<p>注册</p>
-			<p>用户名：<input type="text" name="username" value="test001"></p>
-			<p>密码：<input type="password" name="password" value="123123"></p>
-			<p>确认密码：<input type="password" name="repassword" value="123123"></p>
-			<p><button class="registerbtn">提交</button></p>
-			<p class="regwarning">&nbsp;</p>
-			<p>已经注册？<a href="#" class="tolog">立即登录</a></p>
-		</div>
+		<span><a href="/?category={{ category }}&page={{ page - 1 }}">上一页</a></span>
 		{% endif %}
-		<script src="/public/js/jquery.min.js"></script>
-		<script>
-			$(function(){
-				$('.toreg').click(function(e){
-					e.preventDefault();
-					$('.loginbox').hide();
-					$('.registerbox').show();
-				})
-				$('.tolog').click(function(e){
-					e.preventDefault();
-					$('.registerbox').hide();
-					$('.loginbox').show();
-				})
-				// 注册
-				$('.registerbtn').click(function(e){
-					$.ajax({
-						url: 'api/user/register',
-						type: 'post',
-						data: {
-							username: $('.registerbox').find('[name="username"]').val(),
-							password: $('.registerbox').find('[name="password"]').val(),
-							repassword: $('.registerbox').find('[name="repassword"]').val()
-						},
-						dataType: 'json',
-						success: function(data){
-							console.log('data',data);
-							$('.regwarning').html(data.message)
-						}
-					})
-				});
-				//  登录
-				$(".loginbtn").click(function(e){
-					$.ajax({
-						url: 'api/user/login',
-						type: 'post',
-						data:{
-							username: $('.loginbox').find('[name="username"]').val(),
-							password: $('.loginbox').find('[name="password"]').val()
-						},
-						dataType: 'json',
-						success: function(data){
-							console.log('data',data);
-							window.location.reload();
-						}
-					})
-				});
-				// 登出
-				$('.logout').click(function(e){
-					$.ajax({
-						url: '/api/user/logout',
-						type: 'get',
-						success: function(data){
-							if(!data.code){
-								window.location.reload();
-							}
-						}
-					})
-				})
-			})
-		</script>
-	</body>
-</html>
+
+		{% if pages > 0 %}
+		<strong>{{ page }} / {{ pages }}</strong>
+		{% endif %}
+
+		{% if page >= pages %}
+		<span>没有下一页了</span>
+		{% else %}
+		<span><a href="/?category={{ category }}&page={{ page + 1 }}">下一页</a></span>
+		{% endif %}
+	</div>
+{% endblock%}

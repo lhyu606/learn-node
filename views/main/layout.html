@@ -1,0 +1,129 @@
+<!DOCTYPE>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>博客首页</title>
+		<style>
+			.focus{color: red;}
+		</style>
+	</head>
+	<body>
+		{% if userInfo._id %}
+		<div class="userInfo">
+			{% if userInfo.isAdmin %}
+			<p class="">
+				<span>你好，管理员</span>
+				<a href="/admin">进入管理</a>
+			</p>
+			{% else %}
+			<p class="">你好，<span class="username">{{userInfo.username}}</span></p>
+			{% endif %}
+			
+			<p><a href="#" class="logout">退出</a></p>
+		</div>
+		{% else %}
+		<div class="loginbox">
+			<p>登录</p>
+			<p>用户名：<input type="text" name="username" value="admin"></p>
+			<p>密码：<input type="password" name="password" value="admin"></p>
+			<p><button class="loginbtn">提交</button></p>
+			<p>还没注册？<a href="#" class="toreg">立即注册</a></p>
+		</div>
+		<div class="registerbox" style="display: none;">
+			<p>注册</p>
+			<p>用户名：<input type="text" name="username" value="test001"></p>
+			<p>密码：<input type="password" name="password" value="123123"></p>
+			<p>确认密码：<input type="password" name="repassword" value="123123"></p>
+			<p><button class="registerbtn">提交</button></p>
+			<p class="regwarning">&nbsp;</p>
+			<p>已经注册？<a href="#" class="tolog">立即登录</a></p>
+		</div>
+		{% endif %}
+	
+	<!-- 分类主体 -->
+	<nav>
+		<div class="menu">
+			{% if category == '' %}
+				<a href="/" class="focus">首页</a>
+			{% else %}
+				<a href="/" >首页</a>
+			{% endif %}
+
+			{% for cate in categories %}
+				{% if cate._id.toString() == category %}
+			<a href="/?category={{ cate._id.toString() }}" class="focus">{{ cate.name }}</a>
+				{% else %}
+			<a href="/?category={{ cate._id.toString() }}">{{ cate.name }}</a>	
+				{% endif %}
+			{% endfor %}
+		</div>
+	</nav>
+	<div class="main-left">
+		{% block content %}
+		{% endblock %}
+		
+	</div>
+
+
+		<script src="/public/js/jquery.min.js"></script>
+		<script>
+			$(function(){
+				$('.toreg').click(function(e){
+					e.preventDefault();
+					$('.loginbox').hide();
+					$('.registerbox').show();
+				})
+				$('.tolog').click(function(e){
+					e.preventDefault();
+					$('.registerbox').hide();
+					$('.loginbox').show();
+				})
+				// 注册
+				$('.registerbtn').click(function(e){
+					$.ajax({
+						url: 'api/user/register',
+						type: 'post',
+						data: {
+							username: $('.registerbox').find('[name="username"]').val(),
+							password: $('.registerbox').find('[name="password"]').val(),
+							repassword: $('.registerbox').find('[name="repassword"]').val()
+						},
+						dataType: 'json',
+						success: function(data){
+							console.log('data',data);
+							$('.regwarning').html(data.message)
+						}
+					})
+				});
+				//  登录
+				$(".loginbtn").click(function(e){
+					$.ajax({
+						url: 'api/user/login',
+						type: 'post',
+						data:{
+							username: $('.loginbox').find('[name="username"]').val(),
+							password: $('.loginbox').find('[name="password"]').val()
+						},
+						dataType: 'json',
+						success: function(data){
+							console.log('data',data);
+							window.location.reload();
+						}
+					})
+				});
+				// 登出
+				$('.logout').click(function(e){
+					$.ajax({
+						url: '/api/user/logout',
+						type: 'get',
+						success: function(data){
+							if(!data.code){
+								window.location.reload();
+							}
+						}
+					})
+				})
+			})
+		</script>
+	</body>
+</html>

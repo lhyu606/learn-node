@@ -34,9 +34,12 @@ app.set('views','./views');
 // 参数1 必须是 view engine 
 // 参数2 必须和 app.engine 的第一个参数一致
 app.set('view engine','html');
+// 在开发过程中，需要取消模板缓存
+swig.setDefaults({cache: false});
 
 // bodyParser 设置
-app.use(bodyParser.urlencoded({ extended:true }))
+app.use(bodyParser.urlencoded({ extended:true }));
+
 // cookies 设置
 app.use(function(req, res, next){
 	req.cookies = new Cookies(req, res);
@@ -58,9 +61,7 @@ app.use(function(req, res, next){
 
 	}
 	next();
-})
-// 在开发过程中，需要取消模板缓存
-swig.setDefaults({cache:false});
+});
 
 // 根据不同功能划分不同模块
 app.use('/admin', require('./routers/admin'));
